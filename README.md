@@ -1,1 +1,1 @@
-# tic_tac_toe
+# Basic two-player tic tac toe
