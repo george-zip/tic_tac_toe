@@ -51,7 +51,7 @@ void printBoard(const Board &board);
 
 using Result = std::optional<CellOwner>;
 
-Result getResult(const Board &board);
+Result getResultOfLastMove(const Board &board);
 
 GameChoice getNextChoice(const Board& board);
 
@@ -74,10 +74,10 @@ int main() {
         else {
             auto move = std::get<Move>(next);
             applyMove(board, move, current_turn);
-            auto winner = getResult(board);
-            if(winner) {
-                if(winner == X || winner == O) {
-                    std::cout << *winner << " won\n";
+            auto result = getResultOfLastMove(board);
+            if(result) {
+                if(result == X || result == O) {
+                    std::cout << *result << " won\n";
                 } else {
                     std::cout << "Stalemate\n";
                 }
@@ -117,7 +117,7 @@ GameChoice getNextChoice(const Board& board) {
     }
 }
 
-Result getResult(const Board &board) {
+Result getResultOfLastMove(const Board &board) {
     bool all_cells_occupied = true;
     for(int col = 0; col < board.grid.size(); ++col) {
         if(board.grid.at(col).at(0) == board.grid.at(col).at(1) &&
