@@ -22,7 +22,6 @@ std::ostream& operator<<(std::ostream& os, CellOwner c) {
 
 struct Board {
     using Row = std::array<CellOwner, 3>;
-    using C = CellOwner;
     std::array<Row, 3> grid;
     Board()
             : grid{{{None, None, None},
@@ -67,7 +66,11 @@ int main() {
             applyMove(board, m, currentTurn);
             auto winner = getResult(board);
             if(winner) {
-                std::cout << *winner << " won\n";
+                if(winner == X || winner == O) {
+                    std::cout << *winner << " won\n";
+                } else {
+                    std::cout << "Stalemate\n";
+                }
                 break;
             }
             currentTurn = currentTurn == X ? O : X;
@@ -97,6 +100,8 @@ GameChoice getNextChoice() {
         return Quit{};
     }
     else {
+        // TODO: Validate that input is within range
+        //  and that the space isn't occupied
         Move m;
         std::cin >> m;
         return m;
