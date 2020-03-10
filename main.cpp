@@ -61,7 +61,7 @@ void printHeader();
 
 int main() {
     printHeader();
-    CellOwner currentTurn = X;
+    CellOwner current_turn = X;
     Board board;
     while(true) {
         printBoard(board);
@@ -72,8 +72,8 @@ int main() {
             std::cout << "Invalid input. Please try again\n";
         }
         else {
-            Move m = std::get<Move>(next);
-            applyMove(board, m, currentTurn);
+            auto move = std::get<Move>(next);
+            applyMove(board, move, current_turn);
             auto winner = getResult(board);
             if(winner) {
                 if(winner == X || winner == O) {
@@ -83,7 +83,7 @@ int main() {
                 }
                 break;
             }
-            currentTurn = currentTurn == X ? O : X;
+            current_turn = current_turn == X ? O : X;
         }
     }
     std::cout << "Game over" << std::endl;
