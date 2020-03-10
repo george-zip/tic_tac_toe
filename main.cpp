@@ -29,10 +29,12 @@ struct Board {
                     {None, None, None}}} {}
 };
 
-struct Quit {};
-
 struct Move {
     int row, col;
+    bool isValid() const {
+        return row >= 0 && row <= 3 &&
+            col >= 0 && col <= 3;
+    }
 };
 
 std::istream& operator>>(std::istream& input, Move& m) {
@@ -40,7 +42,10 @@ std::istream& operator>>(std::istream& input, Move& m) {
     return input;
 }
 
-using GameChoice = std::variant<Move, Quit>;
+struct Quit {};
+struct InvalidInput {};
+
+using GameChoice = std::variant<Move, Quit, InvalidInput>;
 
 void printBoard(const Board &board);
 
@@ -48,7 +53,7 @@ using Result = std::optional<CellOwner>;
 
 Result getResult(const Board &board);
 
-GameChoice getNextChoice();
+GameChoice getNextChoice(const Board& board);
 
 void applyMove(Board &board, const Move &move, CellOwner c);
 
@@ -60,8 +65,13 @@ int main() {
     Board board;
     while(true) {
         printBoard(board);
-        auto next = getNextChoice();
-        if(!std::holds_alternative<Quit>(next)) {
+        auto next = getNextChoice(board);
+        if(std::holds_alternative<Quit>(next)) {
+            break;
+        } else if(std::holds_alternative<InvalidInput>(next)) {
+            std::cout << "Invalid input. Please try again\n";
+        }
+        else {
             Move m = std::get<Move>(next);
             applyMove(board, m, currentTurn);
             auto winner = getResult(board);
@@ -74,8 +84,6 @@ int main() {
                 break;
             }
             currentTurn = currentTurn == X ? O : X;
-        } else {
-            break;
         }
     }
     std::cout << "Game over" << std::endl;
@@ -92,7 +100,7 @@ void applyMove(Board &board, const Move &move, CellOwner c) {
     board.grid.at(move.col).at(move.row) = c;
 }
 
-GameChoice getNextChoice() {
+GameChoice getNextChoice(const Board& board) {
     std::cout << "Input your move or (q)uit: ";
     std::cin >> std::ws;
     auto c = std::cin.peek();
@@ -100,11 +108,12 @@ GameChoice getNextChoice() {
         return Quit{};
     }
     else {
-        // TODO: Validate that input is within range
-        //  and that the space isn't occupied
-        Move m;
-        std::cin >> m;
-        return m;
+        Move move;
+        std::cin >> move;
+        if(move.isValid() && board.grid.at(move.col).at(move.row) == None) {
+            return move;
+        }
+        return InvalidInput{};
     }
 }
 
